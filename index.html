@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hotel Mahi</title>
+    <meta name="description" content="Hotel management single-page website: rooms, booking, services, staff, food, parking, membership, payment, contact." />
+    <style>
+      :root {
+        --bg: #0b1020;
+        --bg-soft: #121931;
+        --card: #171f3a;
+        --text: #e9eefb;
+        --muted: #b6c2e2;
+        --primary: #4f8cff;
+        --primary-700: #3e72d0;
+        --accent: #22c55e;
+        --warn: #f59e0b;
+        --danger: #ef4444;
+        --border: #243055;
+        --shadow: 0 10px 30px rgba(0,0,0,0.35);
+        --radius: 14px;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        background: linear-gradient(180deg, var(--bg) 0%, #0d1530 100%);
+        color: var(--text);
+      }
+      a { color: var(--text); text-decoration: none; }
+      img { max-width: 100%; display: block; border-radius: 12px; }
+      .container { width: min(1200px, 92vw); margin: 0 auto; }
+      header.header {
+        position: sticky; top: 0; z-index: 50;
+        background: rgba(10,14,32,0.75); backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--border);
+      }
+      .nav {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 14px 0;
+      }
+      .brand {
+        display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: 0.4px;
+      }
+      .logo {
+        width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--primary), #7aa8ff);
+        display: grid; place-items: center; color: white; font-weight: 900; box-shadow: var(--shadow);
+      }
+      .brand small { display: block; color: var(--muted); font-weight: 500; letter-spacing: 0.2px; }
+      .nav a {
+        padding: 10px 14px; border-radius: 10px; color: var(--muted);
+      }
+      .nav a.active, .nav a:hover { color: var(--text); background: rgba(79,140,255,0.12); }
+      .grid { display: grid; gap: 18px; }
+      .grid.cards { grid-template-columns: repeat(12, 1fr); }
+      .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+      .card-body { padding: 16px; }
+      .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: #0f1630; color: var(--text); cursor: pointer; }
+      .btn.primary { background: linear-gradient(135deg, var(--primary) 0%, #7aa8ff 100%); color: white; border: none; }
+      .btn.ghost { background: transparent; }
+      .btn.warn { background: var(--warn); color: #172554; border: none; }
+      .btn.success { background: var(--accent); color: #052e16; border: none; }
+      .btn.danger { background: var(--danger); color: #ffffff; border: none; }
+      .badge { padding: 4px 8px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border); color: var(--muted); }
+      .badge.ok { background: rgba(34,197,94,0.12); color: #86efac; border-color: #14532d; }
+      .badge.busy { background: rgba(239,68,68,0.12); color: #fecaca; border-color: #7f1d1d; }
+      .row { display: flex; flex-wrap: wrap; gap: 16px; }
+      .row > * { flex: 1 1 280px; }
+      .split { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+      .muted { color: var(--muted); }
+      .price { font-weight: 800; font-size: 18px; }
+      .field { display: grid; gap: 6px; }
+      .field input, .field select, .field textarea {
+        background: #0d1530; border: 1px solid var(--border); color: var(--text);
+        border-radius: 10px; padding: 10px 12px; outline: none; width: 100%;
+      }
+      .field textarea { min-height: 100px; resize: vertical; }
+      form { display: grid; gap: 12px; }
+      .section { padding: 28px 0 36px; }
+      .section h2 { margin: 0 0 10px; }
+      .section .lead { color: var(--muted); margin: 0 0 18px; }
+      .carousel { position: relative; height: 280px; border-radius: var(--radius); overflow: hidden; }
+      .carousel .slides { position: absolute; inset: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 100%; transition: transform .6s ease; }
+      .carousel .slide { position: relative; padding: 22px; display: grid; align-content: end; background-size: cover; background-position: center; }
+      .carousel .slide::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(9,12,26,0.85) 70%); }
+      .carousel .caption { position: relative; z-index: 1; }
+      .carousel .caption h3 { margin: 0 0 6px; }
+      .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+      .toolbar .spacer { flex: 1; }
+      .sidebar { position: sticky; top: 84px; height: fit-content; }
+      footer { border-top: 1px solid var(--border); background: rgba(10,14,32,0.6); margin-top: 26px; }
+      footer .cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 24px 0; }
+      footer small { color: var(--muted); }
+      .kpis { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+      .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+      .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+      .hidden { display: none !important; }
+      .hotel-id-badge { position: fixed; right: 12px; bottom: 12px; background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 6px 10px; border-radius: 999px; box-shadow: var(--shadow); font-size: 12px; z-index: 60; }
+      
+      /* Modal Styles */
+      .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+      .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); width: min(400px, 90vw); max-height: 90vh; overflow-y: auto; }
+      .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--border); }
+      .modal-body { padding: 16px; }
+      .close-btn { background: none; border: none; color: var(--muted); font-size: 24px; cursor: pointer; }
+      .close-btn:hover { color: var(--text); }
+      
+      /* User Profile Styles */
+      .user-profile { position: fixed; top: 14px; right: 14px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; box-shadow: var(--shadow); z-index: 50; }
+      .profile-info { display: flex; align-items: center; gap: 8px; }
+      .customer-id { font-size: 11px; color: var(--muted); background: rgba(79,140,255,0.1); padding: 2px 6px; border-radius: 4px; }
+      
+      @media (max-width: 960px) { .split { grid-template-columns: 1fr; } footer .cols { grid-template-columns: 1fr 1fr; } .kpis { grid-template-columns: 1fr 1fr; } }
+      @media (max-width: 640px) { .nav a { padding: 8px 10px; } footer .cols { grid-template-columns: 1fr; } .kpis { grid-template-columns: 1fr; } .user-profile { position: static; margin: 8px 0; } }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container nav" role="navigation" aria-label="Main">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">HK</div>
+          <div>
+            Hotel Mahi
+            <small>Comfort • Cuisine • Care</small>
+          </div>
+        </div>
+        <nav class="row" style="flex-wrap: nowrap; gap: 6px; justify-content: flex-end;">
+          <a href="#/home" data-link>Home</a>
+          <a href="#/rooms" data-link>Rooms</a>
+          <a href="#/services" data-link>Services</a>
+          <a href="#/service-booking" data-link>Book Services</a>
+          <a href="#/parking-booking" data-link>Book Parking</a>
+          <a href="#/staff" data-link>Staff</a>
+          <a href="#/booking" data-link>Room Booking</a>
+          <a href="#/membership" data-link>Membership</a>
+          <a href="#/contact" data-link>Contact</a>
+          <button id="loginBtn" class="btn primary" onclick="showAuthModal()">Login</button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Login/Register Modal -->
+    <div id="authModal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="authTitle">Login</h2>
+          <button class="close-btn" onclick="closeAuthModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="authForm">
+            <div id="registerFields" class="hidden">
+              <div class="field">
+                <label for="regName">Full Name</label>
+                <input id="regName" type="text" required placeholder="Your full name" />
+              </div>
+              <div class="field">
+                <label for="regPhone">Phone Number</label>
+                <input id="regPhone" type="tel" required placeholder="+91 98765 43210" />
+              </div>
+              <div class="field">
+                <label for="regStreet">Street Address</label>
+                <input id="regStreet" type="text" required placeholder="123 Main Street" />
+              </div>
+              <div class="field">
+                <label for="regCity">City</label>
+                <input id="regCity" type="text" required placeholder="Indore" />
+              </div>
+              <div class="field">
+                <label for="regLandmark">Landmark</label>
+                <input id="regLandmark" type="text" placeholder="Near Phoenix Mall" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="authEmail">Email</label>
+              <input id="authEmail" type="email" required placeholder="your@email.com" />
+            </div>
+            <div class="field">
+              <label for="authPassword">Password</label>
+              <input id="authPassword" type="password" required placeholder="Your password" />
+            </div>
+            <div class="row" style="justify-content: space-between; margin-top: 16px;">
+              <button type="button" id="toggleAuth" class="btn ghost">Switch to Register</button>
+              <button type="submit" class="btn primary">Login</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Profile Section -->
+    <div id="userProfile" class="user-profile hidden">
+      <div class="profile-info">
+        <span id="userName">Welcome, User</span>
+        <span id="customerId" class="customer-id"></span>
+        <button class="btn ghost" onclick="showProfile()">Profile</button>
+        <button class="btn danger" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <main id="app" class="container" tabindex="-1"></main>
+
+    <footer>
+      <div class="container">
+        <div class="cols">
+          <div>
+            <h3 style="margin: 16px 0 8px;">Hotel Mahi</h3>
+            <small>Premium stays, curated dining, and exceptional service in the heart of the city.</small>
+          </div>
+          <div>
+            <h4>Contact</h4>
+            <small>☎ +91 98765 43210</small><br />
+            <small>☎ +91 91234 56789</small><br />
+            <small>✉ hotelmahi@hotelmahi.in</small><br />
+            <small>📍 Tejaji Nagar, Near Phoenix Mall, Indore</small>
+          </div>
+          <div>
+            <h4>Legal</h4>
+            <small><a href="#/home" aria-label="Privacy Policy">Privacy Policy</a></small><br />
+            <small><a href="#/home" aria-label="Terms of Service">Terms of Service</a></small>
+          </div>
+          <div>
+            <h4>Social</h4>
+            <div class="row" style="gap:8px;">
+              <a class="btn ghost" href="#/home" aria-label="Twitter">🐦 Twitter</a>
+              <a class="btn ghost" href="#/home" aria-label="Instagram">📸 Instagram</a>
+              <a class="btn ghost" href="#/home" aria-label="Facebook">📘 Facebook</a>
+            </div>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--border); padding: 12px 0; display:flex; align-items:center; justify-content: space-between;">
+          <small>© <span id="year"></span> Hotel Mahi Hospitality</small>
+          <small>All rights reserved</small>
+        </div>
+      </div>
+    </footer>
+    <div class="hotel-id-badge" aria-label="Hotel Identifier">Hotel ID: HM-IND-0001</div>
+
+    <script>
+      // --- API Configuration
+      const API_BASE = 'http://localhost:3000/api';
+      let authToken = localStorage.getItem('authToken');
+      let currentUser = null;
+
+      // --- Simple SPA Router with hash segments and query support
+      const Router = (() => {
+        const routes = new Map();
+        const parseHash = () => {
+          const hash = location.hash || '#/home';
+          const [path, queryString] = hash.slice(1).split('?');
+          const params = {};
+          if (queryString) {
+            for (const part of queryString.split('&')) {
+              const [k, v] = part.split('=');
+              params[decodeURIComponent(k)] = decodeURIComponent(v ?? '');
+            }
+          }
+          return { path: '/' + (path.replace(/^\/+/, '')), params };
+        };
+        const navigate = (href) => { location.hash = href; };
+        const onChange = async () => {
+          const { path, params } = parseHash();
+          const handler = routes.get(path) || routes.get('/home');
+          if (handler) await handler(params);
+          updateActiveNav(path);
+          document.getElementById('app').focus({ preventScroll: true });
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+        const mount = (path, handler) => routes.set(path, handler);
+        const start = () => {
+          window.addEventListener('hashchange', onChange);
+          onChange();
+        };
+        const updateActiveNav = (activePath) => {
+          document.querySelectorAll('[data-link]').forEach(a => {
+            const path = new URL(a.href).hash.split('?')[0].slice(1);
+            a.classList.toggle('active', ('/' + path.replace(/^\/+/, '')) === activePath);
+          });
+        };
+        return { mount, start, navigate, parseHash };
+      })();
+
+      // --- App State with API integration
+      const state = {
+        rooms: [],
+        services: [],
+        staff: [],
+        menu: { Breakfast: [], Lunch: [], Dinner: [] },
+        parkingSpots: [],
+        serviceBooking: {
+          serviceId: null,
+          bookingDate: null,
+          bookingTime: null,
+          total: 0
+        },
+        parkingBooking: {
+          vehicleNo: null,
+          parkingSpot: null,
+          bookingDate: null,
+          startTime: null,
+          endTime: null,
+          total: 0
+        },
+        booking: {
+          personal: {},
+          roomId: null,
+          services: [],
+          staffId: null,
+          checkIn: null,
+          checkOut: null,
+          guests: 1,
+          total: 0,
+          parking: { spotId: null, price: 0 }
+        }
+      };
+
+      // --- API Helper Functions
+      const apiCall = async (endpoint, options = {}) => {
+        const url = `${API_BASE}${endpoint}`;
+        const config = {
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache',
+            ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+          },
+          ...options
+        };
+        
+        try {
+          const response = await fetch(url, config);
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.error || 'API request failed');
+          }
+          
+          return data;
+        } catch (error) {
+          console.error('API Error:', error);
+          throw error;
+        }
+      };
+
+      // --- Authentication Functions
+      const showAuthModal = () => {
+        document.getElementById('authModal').classList.remove('hidden');
+        document.getElementById('authTitle').textContent = 'Login';
+        document.getElementById('toggleAuth').textContent = 'Switch to Register';
+        document.getElementById('registerFields').classList.add('hidden');
+      };
+
+      const closeAuthModal = () => {
+        document.getElementById('authModal').classList.add('hidden');
+        document.getElementById('authForm').reset();
+      };
+
+      const toggleAuthMode = () => {
+        const isLogin = document.getElementById('authTitle').textContent === 'Login';
+        if (isLogin) {
+          document.getElementById('authTitle').textContent = 'Register';
+          document.getElementById('toggleAuth').textContent = 'Switch to Login';
+          document.getElementById('registerFields').classList.remove('hidden');
+        } else {
+          document.getElementById('authTitle').textContent = 'Login';
+          document.getElementById('toggleAuth').textContent = 'Switch to Register';
+          document.getElementById('registerFields').classList.add('hidden');
+        }
+      };
+
+      const handleAuth = async (e) => {
+        e.preventDefault();
+        const isLogin = document.getElementById('authTitle').textContent === 'Login';
+        const email = document.getElementById('authEmail').value;
+        const password = document.getElementById('authPassword').value;
+        
+        try {
+          if (isLogin) {
+            // Login
+            const response = await apiCall('/auth/login', {
+              method: 'POST',
+              body: JSON.stringify({ email, password })
+            });
+            
+            authToken = response.token;
+            currentUser = { customer_id: response.customer_id, email };
+            localStorage.setItem('authToken', authToken);
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            updateUserInterface();
+            closeAuthModal();
+            alert('Login successful!');
+          } else {
+            // Register
+            const name = document.getElementById('regName').value;
+            const phone_no = document.getElementById('regPhone').value;
+            const street = document.getElementById('regStreet').value;
+            const city = document.getElementById('regCity').value;
+            const landmark = document.getElementById('regLandmark').value;
+            
+            const response = await apiCall('/auth/register', {
+              method: 'POST',
+              body: JSON.stringify({ name, email, password, phone_no, street, city, landmark })
+            });
+            
+            authToken = response.token;
+            currentUser = { customer_id: response.customer_id, email };
+            localStorage.setItem('authToken', authToken);
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            updateUserInterface();
+            closeAuthModal();
+            alert(`Registration successful! Your Customer ID: ${response.customer_id}`);
+          }
+        } catch (error) {
+          alert('Error: ' + error.message);
+        }
+      };
+
+      const logout = () => {
+        authToken = null;
+        currentUser = null;
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('currentUser');
+        updateUserInterface();
+        Router.navigate('/home');
+      };
+
+      const updateUserInterface = () => {
+        const loginBtn = document.getElementById('loginBtn');
+        const userProfile = document.getElementById('userProfile');
+        
+        if (currentUser) {
+          loginBtn.style.display = 'none';
+          userProfile.classList.remove('hidden');
+          document.getElementById('userName').textContent = `Welcome, ${currentUser.email}`;
+          document.getElementById('customerId').textContent = currentUser.customer_id;
+        } else {
+          loginBtn.style.display = 'block';
+          userProfile.classList.add('hidden');
+        }
+      };
+
+      const showProfile = () => {
+        if (!currentUser) return;
+        
+        apiCall('/customer/profile')
+          .then(profile => {
+            alert(`Profile Information:\nName: ${profile.name}\nEmail: ${profile.email}\nPhone: ${profile.phone_no}\nAddress: ${profile.street}, ${profile.city}\nCustomer ID: ${profile.customer_id}`);
+          })
+          .catch(error => {
+            alert('Error loading profile: ' + error.message);
+          });
+      };
+
+      // --- Load data from API
+      const loadData = async () => {
+        try {
+          const [roomsData, servicesData, staffData, parkingSpotsData] = await Promise.all([
+            apiCall('/rooms'),
+            apiCall('/services'),
+            apiCall('/staff'),
+            apiCall('/parking-spots')
+          ]);
+          
+          state.rooms = roomsData;
+          state.services = servicesData;
+          state.staff = staffData;
+          state.parkingSpots = parkingSpotsData;
+          
+          // Keep menu data static for now
+          state.menu.Breakfast = [
+            { id: 'F101', name: 'Continental Platter', desc: 'Pastries, fruits, juices', price: 16 },
+            { id: 'F102', name: 'Omelette & Toast', desc: 'Free-range eggs, sourdough', price: 14 }
+          ];
+          state.menu.Lunch = [
+            { id: 'F201', name: 'Grilled Chicken Bowl', desc: 'Greens, quinoa, herbs', price: 19 },
+            { id: 'F202', name: 'Pasta Primavera', desc: 'Seasonal veggies, parmesan', price: 18 }
+          ];
+          state.menu.Dinner = [
+            { id: 'F301', name: 'Seared Salmon', desc: 'Citrus butter, asparagus', price: 27 },
+            { id: 'F302', name: 'Steak Frites', desc: 'Striploin, peppercorn, fries', price: 32 }
+          ];
+          
+          state.parkingSpots = Array.from({ length: 20 }, (_, i) => ({ 
+            spot_id: 'P' + (i+1).toString().padStart(2,'0'), 
+            location: i < 10 ? 'Ground Floor' : 'Basement',
+            type: i < 5 ? 'Premium' : 'Standard',
+            status: Math.random() > 0.3 ? 'available' : 'booked',
+            price: 200
+          }));
+        } catch (error) {
+          console.error('Error loading data:', error);
+          // Fallback to static data if API fails
+          seedData();
+        }
+      };
+
+      function seedData() {
+        state.rooms = [
+          { id: 'R101', name: 'Deluxe Sea View', type: 'Deluxe', capacity: 2, price: 189, status: 'available', rating: 4.7, image: 'https://share.google/images/VZ2aSAUqaRAGpQav9', location: 'East Wing, Level 10' },
+          { id: 'R102', name: 'Executive Suite', type: 'Suite', capacity: 4, price: 329, status: 'booked', rating: 4.9, image: 'https://share.google/images/ulKYWNQPRUUibGJST', location: 'North Tower, Level 18' },
+          { id: 'R103', name: 'Family Garden', type: 'Family', capacity: 4, price: 239, status: 'available', rating: 4.5, image: 'https://share.google/images/sF1d0QEyooxDPqyrJ', location: 'Garden Annex, Level 3' },
+          { id: 'R104', name: 'Standard City View', type: 'Standard', capacity: 2, price: 129, status: 'available', rating: 4.2, image: 'https://share.google/images/FT9yoFsiojCyOQrRp', location: 'Main, Level 6' },
+          { id: 'R105', name: 'Penthouse Royal', type: 'Suite', capacity: 2, price: 599, status: 'booked', rating: 5.0, image: 'https://share.google/images/ObiQpUpVatKHadu6a', location: 'Skyline, Level 30' }
+        ];
+        state.services = [
+          { service_id: 'S-food', name: 'In-Room Dining', category: 'Food', charges: 100, description: '24/7 curated menu delivered to your door.', image_url: 'https://hizonscatering.com/wp-content/uploads/2017/07/catering-1.jpg' },
+          { service_id: 'S-spa', name: 'Spa & Wellness', category: 'Membership', charges: 49, description: 'Access to sauna, pool, and gym.', image_url: 'https://www.picpedia.org/chalkboard/images/membership.jpg' },
+          { service_id: 'S-parking', name: 'Valet Parking', category: 'Transport', charges: 50, description: 'Secure parking with valet service.', image_url: 'https://tse4.mm.bing.net/th/id/OIP.V_AARO0SHi5ppjkN776TMgHaEK?rs=1&pid=ImgDetMain&o=7&rm=3' },
+          { service_id: 'S-laundry', name: 'Laundry Service', category: 'Housekeeping', charges: 40, description: 'Professional laundry and dry cleaning.', image_url: 'https://careertraining.ed2go.com/common/images/1/19341/basic-housekeeping-935x572.jpg' }
+        ];
+        state.staff = [
+          { staff_id: 'ST001', name: 'Santhosh', role: 'Chef', skill: 'Gourmet Dining', image_url: 'assets/staff/santhosh.jpg' },
+          { staff_id: 'ST002', name: 'Pankaj', role: 'Concierge', skill: 'City Assistance', image_url: 'assets/staff/pankaj.jpg' },
+          { staff_id: 'ST003', name: 'Soumya', role: 'Spa Therapist', skill: 'Wellness & Massage', image_url: 'assets/staff/soumya.jpg' },
+          { staff_id: 'ST004', name: 'Amit', role: 'Housekeeping', skill: 'Room Care', image_url: 'assets/staff/amit.jpg' }
+        ];
+        state.menu.Breakfast = [
+          { id: 'F101', name: 'Continental Platter', desc: 'Pastries, fruits, juices', price: 16 },
+          { id: 'F102', name: 'Omelette & Toast', desc: 'Free-range eggs, sourdough', price: 14 }
+        ];
+        state.menu.Lunch = [
+          { id: 'F201', name: 'Grilled Chicken Bowl', desc: 'Greens, quinoa, herbs', price: 19 },
+          { id: 'F202', name: 'Pasta Primavera', desc: 'Seasonal veggies, parmesan', price: 18 }
+        ];
+        state.menu.Dinner = [
+          { id: 'F301', name: 'Seared Salmon', desc: 'Citrus butter, asparagus', price: 27 },
+          { id: 'F302', name: 'Steak Frites', desc: 'Striploin, peppercorn, fries', price: 32 }
+        ];
+        state.parkingSpots = Array.from({ length: 20 }, (_, i) => ({ 
+          spot_id: 'P' + (i+1).toString().padStart(2,'0'), 
+          location: i < 10 ? 'Ground Floor' : 'Basement',
+          type: i < 5 ? 'Premium' : 'Standard',
+          status: Math.random() > 0.3 ? 'available' : 'booked',
+          price: 200
+        }));
+      }
+
+      // --- Utilities
+      function money(n) {
+        try {
+          return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }).format(Number(n));
+        } catch (e) {
+          return '₹' + Number(n).toFixed(2);
+        }
+      }
+      function el(html) { const d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstElementChild; }
+      function groupBy(arr, key) { return arr.reduce((acc, it) => { (acc[it[key]] ||= []).push(it); return acc; }, {}); }
+      function setHash(path, params) {
+        const q = params ? '?' + Object.entries(params).map(([k,v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&') : '';
+        location.hash = path + q;
+      }
+      function calcBookingTotal() {
+        const room = state.rooms.find(r => r.room_no === state.booking.roomId);
+        const roomPrice = room ? room.price : 0;
+        const servicesTotal = state.booking.services
+          .map(id => state.services.find(s => s.service_id || s.id === id)?.charges || state.services.find(s => s.service_id || s.id === id)?.price || 0)
+          .reduce((a,b) => a+b, 0);
+        const nights = (() => {
+          if (!state.booking.checkIn || !state.booking.checkOut) return 1;
+          const d1 = new Date(state.booking.checkIn), d2 = new Date(state.booking.checkOut);
+          const diff = Math.max(1, Math.round((d2 - d1) / (1000*60*60*24)));
+          return diff;
+        })();
+        const parkingFee = state.booking.parking?.price || 0;
+        state.booking.total = roomPrice * nights + servicesTotal + parkingFee;
+      }
+
+      // --- Renderers
+      function renderHome() {
+        const app = document.getElementById('app');
+        app.innerHTML = '';
+        // Hero Carousel
+        const hero = el(`
+          <section class="section">
+            <div class="carousel card" aria-roledescription="carousel" aria-label="Amenities and promotions">
+              <div class="slides"></div>
+            </div>
+          </section>
+        `);
+        const slides = [
+          { t: 'Wake up to azure horizons', s: 'Deluxe Sea View from ' + money(189), img: 'https://images.unsplash.com/photo-1501117716987-c8e4b1bd7a5c?q=80&w=2400&auto=format&fit=crop' },
+          { t: 'Taste the city', s: 'Gourmet dining crafted by award-winning chefs', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=2400&auto=format&fit=crop' },
+          { t: 'Unwind in style', s: 'Spa, sauna, and skyline pool access', img: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=2400&auto=format&fit=crop' }
+        ];
+        const slidesWrap = hero.querySelector('.slides');
+        slides.forEach((s, i) => {
+          const node = el(`<div class="slide" style="background-image:url('${s.img}')"><div class="caption"><h3>${s.t}</h3><div class="muted">${s.s}</div><div style="margin-top:10px; display:flex; gap:8px;"><a class="btn primary" href="#/rooms">Explore Rooms</a><a class="btn ghost" href="#/services">View Services</a></div></div></div>`);
+          slidesWrap.appendChild(node);
+        });
+        app.appendChild(hero);
+        // Simple auto-advance
+        let idx = 0; setInterval(() => { idx = (idx + 1) % slides.length; slidesWrap.style.transform = `translateX(-${idx*100}%)`; }, 4000);
+
+        // KPIs
+        const kpis = el(`
+          <section class="section">
+            <div class="kpis">
+              <div class="kpi"><div class="muted">Rooms Available</div><div style="font-size:22px; font-weight:800;">${state.rooms.filter(r=>r.status==='available').length}</div></div>
+              <div class="kpi"><div class="muted">Dining Options</div><div style="font-size:22px; font-weight:800;">${Object.values(state.menu).flat().length}</div></div>
+              <div class="kpi"><div class="muted">Happy Members</div><div style="font-size:22px; font-weight:800;">12,840</div></div>
+              <div class="kpi"><div class="muted">Avg. Rating</div><div style="font-size:22px; font-weight:800;">4.6★</div></div>
+            </div>
+          </section>
+        `);
+        app.appendChild(kpis);
+
+        // Features
+        const features = el(`
+          <section class="section">
+            <h2>Experience more with Hotel Mahi</h2>
+            <p class="lead">Curated stays, inspired dining, attentive staff, and rewarding membership perks.</p>
+            <div class="row">
+              <div class="card"><img src="https://th.bing.com/th/id/R.d5759613aad91cf6a9ba22d7ef69afc7?rik=HJN%2b8bMSFdHyzw&riu=http%3a%2f%2fwww.fotolip.com%2fwp-content%2fuploads%2f2016%2f05%2fElegant-Living-Room-9.jpg&ehk=e%2b6VGLvnI3Uogv5qV5XR73y7WpTPsYe0ihQdrmb5Xow%3d&risl=&pid=ImgRaw&r=0" alt="Rooms" /><div class="card-body"><h3>Elegant Rooms</h3><p class="muted">From Standard to Royal Suites, always spotless and serene.</p><a class="btn" href="#/rooms">Browse Rooms</a></div></div>
+              <div class="card"><img src="https://www.2020spaces.com/wp-content/uploads/2020/06/ProductImage_Signature-Kitchen-Suite.jpg" alt="Food" /><div class="card-body"><h3>Signature Cuisine</h3><p class="muted">All-day dining with seasonal menus and room service.</p><a class="btn" href="#/food">See Menu</a></div></div>
+              <div class="card"><img src="https://img.freepik.com/premium-photo/teamwork-hospitality-diverse-professionals-united_153608-57484.jpg" alt="Staff" /><div class="card-body"><h3>Attentive Staff</h3><p class="muted">Concierge, housekeeping, spa and more—on your schedule.</p><a class="btn" href="#/staff">Meet the Team</a></div></div>
+              <div class="card"><img src="https://tse4.mm.bing.net/th/id/OIP.WhC_LnyRWj8WiCq514y-zgHaDv?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Membership" /><div class="card-body"><h3>Membership Benefits</h3><p class="muted">Earn rewards, get upgrades, enjoy exclusive offers.</p><a class="btn" href="#/membership">Join Now</a></div></div>
+            </div>
+          </section>
+        `);
+        app.appendChild(features);
+      }
+
+      function renderRooms(params) {
+        const app = document.getElementById('app');
+        app.innerHTML = '';
+        const types = Array.from(new Set(state.rooms.map(r => r.type)));
+        const filter = el(`
+          <section class="section">
+            <h2>Rooms</h2>
+            <p class="lead">Find your perfect stay. Filter by type and capacity.</p>
+            <div class="toolbar">
+              <div class="field">
+                <label for="type">Type</label>
+                <select id="type"><option value="">All</option>${types.map(t => `<option>${t}</option>`).join('')}</select>
+              </div>
+              <div class="field">
+                <label for="cap">Min Capacity</label>
+                <select id="cap"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+              </div>
+              <div class="spacer"></div>
+              <button class="btn" id="resetFilters">Reset</button>
+            </div>
+          </section>
+        `);
+        app.appendChild(filter);
+        const listWrap = el(`<section class="section split"><div id="roomList" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));"></div><aside class="sidebar"><div class="card"><div class="card-body"><h3>Hotel Info</h3><p class="muted">📍 Indore • Tejaji Nagar • Near Phoenix Mall • 🏊 Pool & Spa • 🧑‍🍳 All-day dining</p><div style="margin-top:10px;">Average Rating <strong>4.6★</strong></div><div class="row" style="margin-top:12px;"><a class="btn ghost" href="#/booking">Go to Booking</a><a class="btn ghost" href="#/payment">Go to Payment</a></div></div></div></aside></section>`);
+        app.appendChild(listWrap);
+
+        const typeSel = filter.querySelector('#type');
+        const capSel = filter.querySelector('#cap');
+        const resetBtn = filter.querySelector('#resetFilters');
+        if (params?.type) typeSel.value = params.type;
+        if (params?.cap) capSel.value = params.cap;
+
+        function draw() {
+          const type = typeSel.value;
+          const minCap = Number(capSel.value);
+          const rooms = state.rooms.filter(r => (!type || r.type === type) && r.capacity >= minCap);
+          const list = listWrap.querySelector('#roomList');
+          list.innerHTML = '';
+          rooms.forEach(r => {
+            const card = el(`
+              <article class="card">
+                <img src="${r.image_url}" alt="${r.type}" />
+                <div class="card-body">
+                  <div class="row" style="align-items:center; justify-content: space-between;">
+                    <h3 style="margin:0;">${r.type}</h3>
+                    <span class="badge ${r.status==='available' ? 'ok' : 'busy'}">${r.status}</span>
+                  </div>
+                  <div class="muted">Room No: <strong>${r.room_no}</strong> • Type: ${r.type} • Sleeps ${r.capacity} • ${r.rating}★</div>
+                  <div class="row" style="align-items:center; justify-content: space-between; margin-top:8px;">
+                    <div class="price">${money(r.price)}<span class="muted">/night</span></div>
+                    <div class="row" style="gap:8px; flex: 0 0 auto;">
+                      <button class="btn" data-view="${r.room_no}">Details</button>
+                      <button class="btn primary" ${r.status!=='available'?'disabled':''} data-book="${r.room_no}">Book</button>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            `);
+            list.appendChild(card);
+          });
+        }
+        draw();
+
+        typeSel.addEventListener('change', () => draw());
+        capSel.addEventListener('change', () => draw());
+        resetBtn.addEventListener('click', () => { typeSel.value = ''; capSel.value = '1'; draw(); });
+        listWrap.addEventListener('click', (e) => {
+          const b = e.target.closest('button'); if (!b) return;
+          if (b.dataset.view) {
+            const r = state.rooms.find(x => x.room_no === b.dataset.view);
+            if (!r) return;
+            alert(`Room ${r.room_no} - ${r.type}\n${r.location}\nRating: ${r.rating}★\n${money(r.price)}/night`);
+          }
+          if (b.dataset.book) {
+            state.booking.roomId = b.dataset.book;
+            calcBookingTotal();
+            setHash('/booking', { room: b.dataset.book });
+          }
+        });
+      }
+
+      function renderServices() {
+        const app = document.getElementById('app');
+        app.innerHTML = '';
+        const grouped = groupBy(state.services, 'category');
+        const sec = el(`<section class="section"><h2>Services</h2><p class="lead">Food and Membership services.</p><div class="row" id="svcRows"></div></section>`);
+        app.appendChild(sec);
+        const wrap = sec.querySelector('#svcRows');
+        Object.entries(grouped).forEach(([cat, items]) => {
+          const col = el(`<div class="card"><div class="card-body"><h3 style="margin:0 0 8px;">${cat}</h3><div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap:12px;"></div></div></div>`);
+          const grid = col.querySelector('.grid');
+          items.forEach(s => {
+            grid.appendChild(el(`
+              <div class="card">
+                <img src="${s.image_url || s.image}" alt="${s.name}" />
+                <div class="card-body">
+                  <strong>${s.name}</strong>
+                  <div class="muted">${s.description || s.desc}</div>
+                  <div class="row" style="align-items:center; justify-content: space-between; margin-top:8px;">
+                    <span class="price">${money(s.charges || s.price)}</span>
+                    <div class="row" style="gap:8px; flex: 0 0 auto;">
+                      ${s.category==='Food' ? '<a class="btn" href="#/food">Food Details</a>' : ''}
+                      ${s.category==='Membership' ? '<a class="btn" href="#/membership">Membership</a>' : ''}
+                      <a class="btn primary" href="#/service-booking">Book Service</a>
+                      <button class="btn" data-request="${s.service_id || s.service_id || s.id}">Add to Room Booking</button>
+                      <button class="btn" data-record="${s.service_id || s.service_id || s.id}">Record Interaction</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `));
+          });
+          wrap.appendChild(col);
+        });
+        wrap.addEventListener('click', async (e) => {
+          const b = e.target.closest('button'); if (!b) return;
+          const id = b.dataset.request;
+          const recordId = b.dataset.record;
+          
+          if (id) {
+            if (!state.booking.services.includes(id)) state.booking.services.push(id);
+            calcBookingTotal();
+            alert('Added to booking: ' + state.services.find(s => s.service_id || s.id === id)?.name);
+            setHash('/booking');
+          } else if (recordId) {
+            const service = state.services.find(s => s.service_id || s.id === recordId);
+            const remarks = prompt(`Record service interaction for ${service?.name}:\n\nEnter remarks:`, 'Service completed successfully');
+            
+            if (remarks !== null) {
+              const success = await recordServiceInteraction(recordId, remarks);
+              if (success) {
+                alert('Service assignment completed successfully!');
+              }
+            }
+          }
+        });
+      }
+
+      function renderStaff() {
+        const app = document.getElementById('app');
+        app.innerHTML = '';
+        const sec = el(`<section class="section"><h2>Staff</h2><p class="lead">Our team is here for you. Request preferred assistance.</p><div class="grid" id="staffGrid" style="grid-template-columns: repeat(auto-fill, minmax(220px,1fr));"></div></section>`);
+        app.appendChild(sec);
+        const grid = sec.querySelector('#staffGrid');
+        state.staff.forEach(t => {
+          grid.appendChild(el(`
+            <div class="card">
+              <img src="${t.image_url || t.image}" alt="${t.name}" onerror="this.onerror=null; this.src='https://i.pravatar.cc/160?u=${encodeURIComponent(t.name)}';" />
+              <div class="card-body">
+                <strong>${t.name}</strong>
+                <div class="muted">${t.role} • ${t.skill}</div>
+                <div class="row" style="margin-top:8px;">
+                  <button class="btn" data-assign="${t.staff_id || t.id}">Assign to Booking</button>
+                  <button class="btn primary" data-assign-service="${t.staff_id || t.id}">Assign to Service</button>
+                </div>
+              </div>
+            </div>
+          `));
+        });
+        grid.addEventListener('click', async (e) => {
+          const b = e.target.closest('button'); if (!b) return;
+          const id = b.dataset.assign;
+          const serviceId = b.dataset.assignService;
+          
+          if (id) {
+            state.booking.staffId = id;
+            alert('Assigned ' + state.staff.find(s => s.staff_id || s.id === id)?.name + ' to your booking');
+            setHash('/booking');
+          } else if (serviceId) {
+            // Show service selection modal
+            const serviceOptions = state.services.map(s => 
+              `<option value="${s.service_id || s.id}">${s.name} - ${s.category}</option>`
+            ).join('');
+            
+            const serviceId = prompt(`Select a service for ${state.staff.find(s => s.staff_id || s.id === serviceId)?.name}:\n\n${state.services.map(s => `${s.service_id || s.id}: ${s.name} (${s.category})`).join('\n')}\n\nEnter service ID:`, 'S-food');
+            
+            if (serviceId && state.services.find(s => s.service_id || s.id === serviceId)) {
+              const success = await assignStaffToService(serviceId, serviceId);
+              if (success) {
+                alert('Staff assignment completed successfully!');
+              }
+            }
+          }
+        });
+      }
+
+      function renderBooking(params) {
+        const app = document.getElementById('app');
+        app.innerHTML = '';
+        if (params?.room) state.booking.roomId = params.room;
+        calcBookingTotal();
+        const sec = el(`
+          <section class="section split">
+            <div>
+              <h2>Booking</h2>
+              <p class="lead">Enter your details and customize your stay. Summary updates live.</p>
+              <form id="bookForm" novalidate>
+                <div class="row">
+                  <div class="field">
+                    <label for="name">Full Name</label>
+                    <input required id="name" name="name" placeholder="Jane Doe" />
+                  </div>
+                  <div class="field">
+                    <label for="email">Email</label>
+                    <input required id="email" type="email" placeholder="jane@example.com" />
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="field"><label for="checkIn">Check-in</label><input id="checkIn" type="date" /></div>
+                  <div class="field"><label for="checkOut">Check-out</label><input id="checkOut" type="date" /></div>
+                  <div class="field"><label for="guests">Guests</label><select id="guests"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+                </div>
+                <div class="row">
+                  <div class="field" style="flex:2 1 360px;">
+                    <label for="roomSel">Room</label>
+                    <select id="roomSel"></select>
+                  </div>
+                  <div class="field" style="flex:1 1 240px;">
+                    <label for="staffSel">Preferred Staff (optional)</label>
+                    <select id="staffSel"><option value="">None</option>${state.staff.map(s=>`<option value="${s.staff_id || s.id}">${s.name} • ${s.role}</option>`).join('')}</select>
+                  </div>
+                </div>
+                <fieldset style="border:1px solid var(--border); border-radius:12px; padding:12px;">
+                  <legend class="muted">Additional Services</legend>
+                  <div class="row" style="gap:8px;">
+                    ${state.services.map(s=>`<label class="btn" style="gap:6px;"><input type="checkbox" data-svc="${s.service_id || s.service_id || s.id}" ${state.booking.services.includes(s.service_id || s.service_id || s.id)?'checked':''}/> ${s.name} (${money(s.charges || s.price)})</label>`).join('')}
+                  </div>
+                </fieldset>
+                <fieldset style="border:1px dashed var(--border); border-radius:12px; padding:14px; background: rgba(36,48,85,0.25);">
+                  <legend class="muted" style="padding:0 6px;">Parking</legend>
+                  <div class="row" style="align-items:center; justify-content: space-between;">
+                    <div id="parkingStatus" class="muted" style="font-weight:600;">${state.booking.parking.spotId ? `Selected: ${state.booking.parking.spotId} • Fee ${money(state.booking.parking.price)}` : `No spot selected • Fee ${money(200)}`}</div>
+                    <div class="row" style="gap:8px; flex:0 0 auto;">
+                      <a class="btn primary" id="manageParking" href="#/parking">Reserve / Change</a>
+                      <button class="btn" id="clearParking" type="button">Clear</button>
+                    </div>
+                  </div>
+                </fieldset>
+                <div class="row" style="justify-content: space-between;">
+                  <div class="row" style="gap:8px;">
+                    <a class="btn ghost" href="#/rooms">Back to Rooms</a>
+                    <a class="btn ghost" href="#/services">View Services</a>
+                  </div>
+                  <button class="btn primary" type="submit">Proceed to Payment</button>
+                </div>
+              </form>
+            </div>
+            <aside class="sidebar card">
+              <div class="card-body">
+                <h3>Summary</h3>
+                <div id="summary"></div>
+              </div>
+            </aside>
+          </section>
+        `);
+        app.appendChild(sec);
+        const form = sec.querySelector('#bookForm');
+        const summary = sec.querySelector('#summary');
+        const roomSel = sec.querySelector('#roomSel');
+
+        roomSel.innerHTML = state.rooms.map(r => `<option value="${r.room_no}" ${state.booking.roomId===r.room_no?'selected':''} ${r.status!=='available'?'disabled':''}>${r.room_no} — ${r.type} — ${money(r.price)}/night ${r.status!=='available'?'(booked)':''}</option>`).join('');
+
+        const staffSel = sec.querySelector('#staffSel');
+        const checkIn = sec.querySelector('#checkIn');
+        const checkOut = sec.querySelector('#checkOut');
+        const guests = sec.querySelector('#guests');
+
+        function drawSummary() {
+          calcBookingTotal();
+          const room = state.rooms.find(r => r.room_no === state.booking.roomId);
+          const staff = state.staff.find(s => s.staff_id || s.id === state.booking.staffId);
+          const svcs = state.booking.services.map(id => state.services.find(s => s.service_id || s.id === id));
+          summary.innerHTML = `
+            <div class="row" style="align-items:center; justify-content: space-between;">
+              <div>${room?('Room '+room.room_no+' — '+room.type):'No room selected'}</div>
+              <div>${room?money(room.price)+'/night':''}</div>
+            </div>
+            <div class="muted">Dates: ${state.booking.checkIn || '—'} → ${state.booking.checkOut || '—'} • Guests: ${state.booking.guests}</div>
+            <div style="margin-top:8px;">
+              <div class="muted">Services</div>
+              ${svcs.length?svcs.map(s=>`<div class="row" style="justify-content: space-between;"><span>${s.name}</span><span>${money(s.charges || s.price)}</span></div>`).join(''): '<div class="muted">None</div>'}
+            </div>
+            ${state.booking.parking.spotId ? `<div class=\"row\" style=\"justify-content: space-between; margin-top:6px;\"><span>Parking (${state.booking.parking.spotId})</span><span>${money(state.booking.parking.price)}</span></div>` : ''}
+            <div style="margin-top:8px;" class="muted">Staff: ${staff?staff.name+' • '+staff.role:'None'}</div>
+            <hr style="border-color: var(--border);" />
+            <div class="row" style="align-items:center; justify-content: space-between;">
+              <strong>Total</strong>
+              <strong>${money(state.booking.total)}</strong>
+            </div>
+            <div class="row" style="gap:8px; margin-top:10px;">
+              <a class="btn" href="#/payment">Pay Now</a>
+              <a class="btn ghost" href="#/rooms">Change Room</a>
+            </div>
+          `;
+        }
+        drawSummary();
+
+        form.addEventListener('change', (e) => {
+          if (e.target.matches('[data-svc]')) {
+            const id = e.target.getAttribute('data-svc');
+            if (e.target.checked) {
+              if (!state.booking.services.includes(id)) state.booking.services.push(id);
+            } else {
+              state.booking.services = state.booking.services.filter(x => x !== id);
+            }
+          }
+          if (e.target === roomSel) state.booking.roomId = roomSel.value || null;
+          if (e.target === staffSel) state.booking.staffId = staffSel.value || null;
+          if (e.target === checkIn) state.booking.checkIn = checkIn.value || null;
+          if (e.target === checkOut) state.booking.checkOut = checkOut.value || null;
+          if (e.target === guests) state.booking.guests = Number(guests.value);
+          drawSummary();
+        });
+        // Parking manage/clear in booking
+        const clearParkingBtn = sec.querySelector('#clearParking');
+        if (clearParkingBtn) {
+          clearParkingBtn.addEventListener('click', () => {
+            state.booking.parking = { spotId: null, price: 0 };
+            calcBookingTotal();
+            // reflect UI
+            const parkingStatus = sec.querySelector('#parkingStatus');
+            if (parkingStatus) parkingStatus.textContent = `No spot selected • Fee ${money(200)}`;
+            drawSummary();
+          });
+        }
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          if (!currentUser) {
+            alert('Please login to make a booking');
+            showAuthModal();
+            return;
+          }
+          
+          // Check room availability before booking
+          try {
+            const availabilityCheck = await apiCall(`/rooms/check-availability?room_no=${state.booking.roomId}&checkin_date=${state.booking.checkIn}&checkout_date=${state.booking.checkOut}`);
+            
+            if (!availabilityCheck.available) {
+              alert('Sorry, this room is no longer available for the selected dates. Please choose another room or different dates.');
+              return;
+            }
+            
+            const bookingData = {
+              room_no: state.booking.roomId,
+              checkin_date: state.booking.checkIn,
+              checkout_date: state.booking.checkOut,
+              no_of_members: state.booking.guests,
+              services: state.booking.services,
+              staff_id: state.booking.staffId,
+              total_amount: state.booking.total
+            };
+            
+            const response = await apiCall('/bookings', {
+              method: 'POST',
+              body: JSON.stringify(bookingData)
+            });
+            
+            state.booking.bookingId = response.booking_id;
+            alert(`Booking created successfully! Booking ID: ${response.booking_id}`);
+            setHash('/payment');
+          } catch (error) {
+            alert('Error creating booking: ' + error.message);
+          }
+        });
+      }
+
+      function renderPayment() {
+        const app = document.getElementById('app');
+        app.innerHTML = '';
+        calcBookingTotal();
+        const room = state.rooms.find(r => r.room_no === state.booking.roomId);
+        const svcs = state.booking.services.map(id => state.services.find(s => s.service_id || s.id === id));
+        const sec = el(`
+          <section class="section split">
+            <div>
+              <h2>Payment</h2>
+              <p class="lead">Complete your booking securely.</p>
+              <form id="payForm">
+                <div class="field"><label for="cardName">Name on Card</label><input id="cardName" required placeholder="Jane Doe"/></div>
+                <div class="row">
+                  <div class="field"><label for="cardNum">Card Number</label><input id="cardNum" required inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456"/></div>
+                  <div class="field"><label for="exp">Expiry</label><input id="exp" required placeholder="MM/YY"/></div>
+                  <div class="field"><label for="cvv">CVV</label><input id="cvv" required inputmode="numeric" maxlength="4" placeholder="123"/></div>
+                </div>
+                <div class="row" style="justify-content: space-between;">
+                  <a class="btn ghost" href="#/booking">Back to Booking</a>
+                  <div class="row" style="gap:8px;">
+                    <button class="btn danger" type="button" id="cancelPay">Cancel</button>
+                    <button class="btn success" type="submit">Confirm & Pay</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <aside class="sidebar card"><div class="card-body">
+              <h3>Booking Summary</h3>
+              <div class="muted">${state.booking.checkIn || '—'} → ${state.booking.checkOut || '—'} • Guests: ${state.booking.guests}</div>
+              <div style="margin-top:8px;"><strong>${room?('Room '+room.room_no+' — '+room.type):'No room selected'}</strong> ${room?`— ${money(room.price)}/night`:''}</div>
+              <div style="margin-top:8px;">
+                <div class="muted">Services</div>
+                ${svcs.length?svcs.map(s=>`<div class="row" style="justify-content: space-between;"><span>${s.name}</span><span>${money(s.charges || s.price)}</span></div>`).join(''): '<div class="muted">None</div>'}
+              </div>
+              ${state.booking.parking.spotId ? `<div class=\"row\" style=\"justify-content: space-between; margin-top:6px;\"><span>Parking (${state.booking.parking.spotId})</span><span>${money(state.booking.parking.price)}</span></div>` : ''}
+              <hr style="border-color: var(--border);" />
+              <div class="row" style="align-items:center; justify-content: space-between;"><strong>Total</strong><strong>${money(state.booking.total)}</strong></div>
+            </div></aside>
+          </section>
+        `);
+        app.appendChild(sec);
+        const form = sec.querySelector('#payForm');
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          if (!currentUser) {
+            alert('Please login to make a payment');
+            showAuthModal();
+            return;
+          }
+          
+          try {
+            const paymentData = {
+              booking_id: state.booking.bookingId || 'temp-booking-id',
+              amount: state.booking.total,
+              mode: 'card'
+            };
+            
+            const response = await apiCall('/payments', {
+              method: 'POST',
+              body: JSON.stringify(paymentData)
+            });
+            
+            alert(`Payment successful! Payment ID: ${response.payment_id}\nYour booking is confirmed.`);
+            
+            // Reset minimal booking state but keep some UX context
+            state.booking.services = [];
+            state.booking.staffId = null;
+            state.booking.total = 0;
+            state.booking.parking = { spotId: null, price: 0 };
+            setHash('/home');
+          } catch (error) {
+            alert('Error processing payment: ' + error.message);
+          }
+        });
+        sec.querySelector('#cancelPay').addEventListener('click', () => setHash('/booking'));
+      }
+
+      function renderFood() {
+        const app = document.getElementById('app');
+        app.innerHTML = '';
+        const sec = el(`<section class="section"><h2>Food Menu</h2><p class="lead">Breakfast, Lunch, and Dinner selections.</p><div id="menuWrap" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(260px,1fr));"></div><div class="row" style="margin-top:12px; justify-content: space-between;"><a class="btn ghost" href="#/services">Back to Services</a><a class="btn primary" href="#/booking">Add to Booking</a></div></section>`);
+        app.appendChild(sec);
+        const wrap = sec.querySelector('#menuWrap');
+        Object.entries(state.menu).forEach(([cat, items]) => {
+          wrap.appendChild(el(`<div class="card"><div class="card-body"><h3>${cat}</h3>${items.map(i=>`<div class="row" style="align-items:center; justify-content: space-between; margin:8px 0;"><div><strong>${i.name}</strong><div class=\"muted\">${i.desc}</div></div><div class="row" style="gap:8px; align-items:center;"><span class="price">${money(i.price)}</span><button class="btn" data-order="${i.id}">Order</button></div></div>`).join('')}</div></div>`));
+        });
+        wrap.addEventListener('click', (e) => {
+          const b = e.target.closest('button'); if (!b) return;
+          const itemId = b.dataset.order;
+          const svc = state.services.find(s => s.category === 'Food');
+          if (svc && !state.booking.services.includes(svc.service_id || svc.id)) state.booking.services.push(svc.service_id || svc.id);
+          calcBookingTotal();
+          alert('Added food to booking.');
+          setHash('/booking');
+        });
+      }
+
+      function renderParking() {
+        const app = document.getElementById('app');
+        app.innerHTML = '';
+        const sec = el(`
+          <section class="section split">
+            <div>
+              <h2>Parking</h2>
+              <p class="lead">Reserve a secure spot. EV charging available.</p>
+              <div class="card"><div class="card-body">
+                <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(80px,1fr)); gap:10px;">
+                  ${state.parkingSpots.map(p => `<button class="btn ${p.status === 'available' ? 'success' : 'danger'}" data-spot="${p.spot_id}" ${p.status === 'available' ? '' : 'disabled'}>${p.spot_id}</button>`).join('')}
+                </div>
+              </div></div>
+              <form id="parkForm" style="margin-top:12px;">
+                <div class="row">
+                  <div class="field"><label>Vehicle</label><input id="veh" placeholder="Tesla Model 3"/></div>
+                  <div class="field"><label>Plate</label><input id="plate" placeholder="ABC-123"/></div>
+                </div>
+                <div class="muted" style="margin:6px 0 0 2px;">Parking fee: <strong>${money(200)}</strong> (per booking)</div>
+                <div class="row" style="justify-content: space-between;">
+                  <a class="btn ghost" href="#/services">Back to Services</a>
+                  <a class="btn primary" href="#/parking-booking">Book Parking Separately</a>
+                  <button class="btn warn" type="submit">Add to Room Booking</button>
+                </div>
+              </form>
+            </div>
+            <aside class="sidebar card"><div class="card-body">
+              <h3>Instructions</h3>
+              <ol class="muted">
+                <li>Choose any green slot.</li>
+                <li>Provide your vehicle details.</li>
+                <li>Collect QR pass at reception.</li>
+              </ol>
+              <div style="margin-top: 16px;">
+                <h4>Available Spots</h4>
+                <div class="muted">Green: Available | Red: Booked</div>
+                <div class="muted">Total: ${state.parkingSpots.filter(p => p.status === 'available').length} available</div>
+              </div>
+            </div></aside>
+          </section>
+        `);
+        app.appendChild(sec);
+        let selected = null;
+        sec.addEventListener('click', (e) => {
+          const b = e.target.closest('button.btn'); if (!b || !b.dataset.spot) return;
+          selected = b.dataset.spot;
+          sec.querySelectorAll('[data-spot]').forEach(x => x.classList.remove('success'));
+          b.classList.add('success');
+        });
+        sec.querySelector('#parkForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          if (!selected) { alert('Please select a spot.'); return; }
+          state.booking.parking = { spotId: selected, price: 200 };
+          calcBookingTotal();
+          alert('Reserved ' + selected + '. Parking added to room booking.');
+          setHash('/booking');
+        });
+      }
+
+      function renderMembership() {
+        const app = document.getElementById('app');
+        app.innerHTML = '';
+        const plans = [
+          { id: 'M1', name: 'Silver', price: 49, perks: ['5% off rooms', 'Late checkout', 'Welcome drink'] },
+          { id: 'M2', name: 'Gold', price: 129, perks: ['10% off rooms', 'Free breakfast', 'Spa access'] },
+          { id: 'M3', name: 'Platinum', price: 249, perks: ['15% off rooms', 'Suite upgrades', 'Concierge priority'] }
+        ];
+        const sec = el(`<section class="section"><h2>Membership</h2><p class="lead">Join to unlock benefits and exclusive offers.</p><div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(240px,1fr));" id="planGrid"></div></section>`);
+        app.appendChild(sec);
+        const grid = sec.querySelector('#planGrid');
+        plans.forEach(p => {
+          grid.appendChild(el(`
+            <div class="card"><div class="card-body">
+              <h3>${p.name}</h3>
+              <div class="price" style="margin-bottom:6px;">${money(p.price)}/year</div>
+              <ul class="muted" style="margin:0 0 8px 16px;">${p.perks.map(x=>`<li>${x}</li>`).join('')}</ul>
+              <div class="row" style="gap:8px;">
+                <button class="btn primary" data-join="${p.id}">Join Now</button>
+                <a class="btn ghost" href="#/booking">Apply to Booking</a>
+              </div>
+            </div></div>
+          `));
+        });
+        grid.addEventListener('click', (e) => {
+          const b = e.target.closest('button'); if (!b) return;
+          alert('Membership request: ' + b.dataset.join + '. We will follow up by email.');
+        });
+      }
+
+      function renderContact() {
+        const app = document.getElementById('app');
+        app.innerHTML = '';
+        const sec = el(`
+          <section class="section split">
+            <div>
+              <h2>Contact Us</h2>
+              <p class="lead">We typically respond within a business day.</p>
+              <form id="contactForm">
+                <div class="row">
+                  <div class="field"><label>Name</label><input id="cname" required placeholder="Your name"/></div>
+                  <div class="field"><label>Email</label><input id="cemail" required type="email" placeholder="you@example.com"/></div>
+                </div>
+                <div class="field"><label>Message</label><textarea id="cmsg" required placeholder="How can we help?"></textarea></div>
+                <div class="row" style="justify-content: space-between;">
+                  <a class="btn ghost" href="#/home">Home</a>
+                  <button class="btn primary" type="submit">Send</button>
+                </div>
+              </form>
+            </div>
+            <aside class="sidebar card"><div class="card-body">
+              <h3>Reach us</h3>
+              <div class="muted">Phone: +91 98765 43210, +91 91234 56789</div>
+              <div class="muted">Email: hotelmahi@hotelmahi.in</div>
+              <div class="muted">Address: Tejaji Nagar, Near Phoenix Mall, Indore</div>
+              <div style="margin-top:10px;">
+                <img src="https://maps.locationiq.com/v3/staticmap?key=pk.eyJ1Ijoibm8iLCJhIjoiY2sifQ&center=37.789,-122.401&zoom=13&size=600x300&markers=icon:large-red-cutout|37.789,-122.401" alt="Map location" />
+              </div>
+              <div class="row" style="gap:8px; margin-top:10px;">
+                <a class="btn ghost" href="#/booking">Booking</a>
+                <a class="btn ghost" href="#/services">Services</a>
+              </div>
+            </div></aside>
+          </section>
+        `);
+        app.appendChild(sec);
+        sec.querySelector('#contactForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          alert('Thanks! We have received your message.');
+          setHash('/home');
+        });
+      }
+
+      function renderServiceBooking() {
+        const app = document.getElementById('app');
+        app.innerHTML = '';
+        const sec = el(`
+          <section class="section split">
+            <div>
+              <h2>Book Services</h2>
+              <p class="lead">Book our premium services independently of room reservations.</p>
+              <form id="serviceBookingForm">
+                <div class="field">
+                  <label for="serviceSelect">Select Service</label>
+                  <select id="serviceSelect" required>
+                    <option value="">Choose a service...</option>
+                    ${state.services.map(s => `<option value="${s.service_id}">${s.name} - ${s.category} (${money(s.charges)})</option>`).join('')}
+                  </select>
+                </div>
+                <div class="row">
+                  <div class="field">
+                    <label for="serviceDate">Booking Date</label>
+                    <input id="serviceDate" type="date" required />
+                  </div>
+                  <div class="field">
+                    <label for="serviceTime">Booking Time</label>
+                    <input id="serviceTime" type="time" required />
+                  </div>
+                </div>
+                <div class="row" style="justify-content: space-between;">
+                  <a class="btn ghost" href="#/services">Back to Services</a>
+                  <button class="btn primary" type="submit">Book Service</button>
+                </div>
+              </form>
+            </div>
+            <aside class="sidebar card">
+              <div class="card-body">
+                <h3>Service Booking Summary</h3>
+                <div id="serviceBookingSummary">
+                  <div class="muted">Select a service to see details</div>
+                </div>
+              </div>
+            </aside>
+          </section>
+        `);
+        app.appendChild(sec);
+        
+        const form = sec.querySelector('#serviceBookingForm');
+        const serviceSelect = sec.querySelector('#serviceSelect');
+        const serviceDate = sec.querySelector('#serviceDate');
+        const serviceTime = sec.querySelector('#serviceTime');
+        const summary = sec.querySelector('#serviceBookingSummary');
+        
+        // Set minimum date to today
+        serviceDate.min = new Date().toISOString().split('T')[0];
+        
+        function updateServiceSummary() {
+          const selectedService = state.services.find(s => s.service_id === serviceSelect.value);
+          if (selectedService) {
+            state.serviceBooking.serviceId = serviceSelect.value;
+            state.serviceBooking.bookingDate = serviceDate.value;
+            state.serviceBooking.bookingTime = serviceTime.value;
+            state.serviceBooking.total = selectedService.charges;
+            
+            summary.innerHTML = `
+              <div class="row" style="justify-content: space-between;">
+                <div><strong>${selectedService.name}</strong></div>
+                <div>${money(selectedService.charges)}</div>
+              </div>
+              <div class="muted">Category: ${selectedService.category}</div>
+              <div class="muted">Date: ${serviceDate.value || 'Not selected'}</div>
+              <div class="muted">Time: ${serviceTime.value || 'Not selected'}</div>
+              <hr style="border-color: var(--border);" />
+              <div class="row" style="justify-content: space-between;">
+                <strong>Total</strong>
+                <strong>${money(selectedService.charges)}</strong>
+              </div>
+            `;
+          } else {
+            summary.innerHTML = '<div class="muted">Select a service to see details</div>';
+          }
+        }
+        
+        serviceSelect.addEventListener('change', updateServiceSummary);
+        serviceDate.addEventListener('change', updateServiceSummary);
+        serviceTime.addEventListener('change', updateServiceSummary);
+        
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          if (!currentUser) {
+            alert('Please login to book services');
+            showAuthModal();
+            return;
+          }
+          
+          try {
+            const bookingData = {
+              service_id: state.serviceBooking.serviceId,
+              booking_date: state.serviceBooking.bookingDate,
+              booking_time: state.serviceBooking.bookingTime
+            };
+            
+            const response = await apiCall('/service-bookings', {
+              method: 'POST',
+              body: JSON.stringify(bookingData)
+            });
+            
+            alert(`Service booking created successfully! Booking ID: ${response.service_booking_id}`);
+            
+            // Reset form
+            form.reset();
+            state.serviceBooking = { serviceId: null, bookingDate: null, bookingTime: null, total: 0 };
+            updateServiceSummary();
+            
+            setHash('/services');
+          } catch (error) {
+            alert('Error creating service booking: ' + error.message);
+          }
+        });
+      }
+
+      function renderParkingBooking() {
+        const app = document.getElementById('app');
+        app.innerHTML = '';
+        const sec = el(`
+          <section class="section split">
+            <div>
+              <h2>Book Parking</h2>
+              <p class="lead">Reserve a secure parking spot for your vehicle.</p>
+              <form id="parkingBookingForm">
+                <div class="row">
+                  <div class="field">
+                    <label for="vehicleNo">Vehicle Number</label>
+                    <input id="vehicleNo" required placeholder="ABC-1234" />
+                  </div>
+                  <div class="field">
+                    <label for="parkingSpot">Parking Spot</label>
+                    <select id="parkingSpot" required>
+                      <option value="">Select a spot...</option>
+                      ${state.parkingSpots.filter(spot => spot.status === 'available').map(spot => 
+                        `<option value="${spot.spot_id}">${spot.spot_id} - ${spot.location} (${spot.type}) - ${money(spot.price)}</option>`
+                      ).join('')}
+                    </select>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="field">
+                    <label for="parkingDate">Booking Date</label>
+                    <input id="parkingDate" type="date" required />
+                  </div>
+                  <div class="field">
+                    <label for="startTime">Start Time</label>
+                    <input id="startTime" type="time" required />
+                  </div>
+                  <div class="field">
+                    <label for="endTime">End Time</label>
+                    <input id="endTime" type="time" required />
+                  </div>
+                </div>
+                <div class="row" style="justify-content: space-between;">
+                  <a class="btn ghost" href="#/services">Back to Services</a>
+                  <button class="btn primary" type="submit">Book Parking</button>
+                </div>
+              </form>
+            </div>
+            <aside class="sidebar card">
+              <div class="card-body">
+                <h3>Parking Booking Summary</h3>
+                <div id="parkingBookingSummary">
+                  <div class="muted">Select a parking spot to see details</div>
+                </div>
+                <div style="margin-top: 16px;">
+                  <h4>Available Spots</h4>
+                  <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px;">
+                    ${state.parkingSpots.map(spot => 
+                      `<div class="btn ${spot.status === 'available' ? 'success' : 'danger'}" style="font-size: 12px; padding: 4px 8px;">
+                        ${spot.spot_id}
+                      </div>`
+                    ).join('')}
+                  </div>
+                  <div class="muted" style="margin-top: 8px; font-size: 12px;">
+                    Green: Available | Red: Booked
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </section>
+        `);
+        app.appendChild(sec);
+        
+        const form = sec.querySelector('#parkingBookingForm');
+        const vehicleNo = sec.querySelector('#vehicleNo');
+        const parkingSpot = sec.querySelector('#parkingSpot');
+        const parkingDate = sec.querySelector('#parkingDate');
+        const startTime = sec.querySelector('#startTime');
+        const endTime = sec.querySelector('#endTime');
+        const summary = sec.querySelector('#parkingBookingSummary');
+        
+        // Set minimum date to today
+        parkingDate.min = new Date().toISOString().split('T')[0];
+        
+        function updateParkingSummary() {
+          const selectedSpot = state.parkingSpots.find(spot => spot.spot_id === parkingSpot.value);
+          if (selectedSpot) {
+            state.parkingBooking.vehicleNo = vehicleNo.value;
+            state.parkingBooking.parkingSpot = parkingSpot.value;
+            state.parkingBooking.bookingDate = parkingDate.value;
+            state.parkingBooking.startTime = startTime.value;
+            state.parkingBooking.endTime = endTime.value;
+            state.parkingBooking.total = selectedSpot.price;
+            
+            summary.innerHTML = `
+              <div class="row" style="justify-content: space-between;">
+                <div><strong>Spot ${selectedSpot.spot_id}</strong></div>
+                <div>${money(selectedSpot.price)}</div>
+              </div>
+              <div class="muted">Location: ${selectedSpot.location}</div>
+              <div class="muted">Type: ${selectedSpot.type}</div>
+              <div class="muted">Vehicle: ${vehicleNo.value || 'Not entered'}</div>
+              <div class="muted">Date: ${parkingDate.value || 'Not selected'}</div>
+              <div class="muted">Time: ${startTime.value || 'Not selected'} - ${endTime.value || 'Not selected'}</div>
+              <hr style="border-color: var(--border);" />
+              <div class="row" style="justify-content: space-between;">
+                <strong>Total</strong>
+                <strong>${money(selectedSpot.price)}</strong>
+              </div>
+            `;
+          } else {
+            summary.innerHTML = '<div class="muted">Select a parking spot to see details</div>';
+          }
+        }
+        
+        parkingSpot.addEventListener('change', updateParkingSummary);
+        vehicleNo.addEventListener('input', updateParkingSummary);
+        parkingDate.addEventListener('change', updateParkingSummary);
+        startTime.addEventListener('change', updateParkingSummary);
+        endTime.addEventListener('change', updateParkingSummary);
+        
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          if (!currentUser) {
+            alert('Please login to book parking');
+            showAuthModal();
+            return;
+          }
+          
+          try {
+            const bookingData = {
+              vehicle_no: state.parkingBooking.vehicleNo,
+              parking_spot: state.parkingBooking.parkingSpot,
+              booking_date: state.parkingBooking.bookingDate,
+              start_time: state.parkingBooking.startTime,
+              end_time: state.parkingBooking.endTime
+            };
+            
+            const response = await apiCall('/parking-bookings', {
+              method: 'POST',
+              body: JSON.stringify(bookingData)
+            });
+            
+            alert(`Parking booking created successfully! Booking ID: ${response.parking_booking_id}`);
+            
+            // Reset form
+            form.reset();
+            state.parkingBooking = { vehicleNo: null, parkingSpot: null, bookingDate: null, startTime: null, endTime: null, total: 0 };
+            updateParkingSummary();
+            
+            // Reload parking spots to update availability
+            loadData();
+            
+            setHash('/services');
+          } catch (error) {
+            alert('Error creating parking booking: ' + error.message);
+          }
+        });
+      }
+
+      // --- New Relation Table Functions
+      async function loadStaffServiceAssignments() {
+        try {
+          const response = await fetch('/api/staff-service-assignments');
+          if (response.ok) {
+            const assignments = await response.json();
+            return assignments;
+          }
+        } catch (error) {
+          console.error('Error loading staff-service assignments:', error);
+        }
+        return [];
+      }
+
+      async function loadCustomerServiceInteractions() {
+        try {
+          const response = await fetch('/api/customer-service-interactions', {
+            headers: {
+              'Authorization': `Bearer ${authToken}`
+            }
+          });
+          if (response.ok) {
+            const interactions = await response.json();
+            return interactions;
+          }
+        } catch (error) {
+          console.error('Error loading customer service interactions:', error);
+        }
+        return [];
+      }
+
+      async function assignStaffToService(staffId, serviceId) {
+        try {
+          const response = await fetch('/api/staff-service-assignments', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ staff_id: staffId, service_id: serviceId })
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            alert('Staff assigned to service successfully!');
+            return true;
+          } else {
+            alert('Failed to assign staff to service');
+            return false;
+          }
+        } catch (error) {
+          console.error('Error assigning staff to service:', error);
+          alert('Error assigning staff to service');
+          return false;
+        }
+      }
+
+      async function recordServiceInteraction(serviceId, remarks) {
+        try {
+          const response = await fetch('/api/customer-service-interactions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ service_id: serviceId, remarks })
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            alert('Service interaction recorded successfully!');
+            return true;
+          } else {
+            alert('Failed to record service interaction');
+            return false;
+          }
+        } catch (error) {
+          console.error('Error recording service interaction:', error);
+          alert('Error recording service interaction');
+          return false;
+        }
+      }
+
+      function renderStaffServiceAssignments() {
+        const app = document.getElementById('app');
+        app.innerHTML = `
+          <section class="section">
+            <h2>Staff-Service Assignments</h2>
+            <p class="lead">View which staff members are assigned to which services.</p>
+            <div id="assignmentsList" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+              <div class="muted">Loading assignments...</div>
+            </div>
+          </section>
+        `;
+        
+        loadStaffServiceAssignments().then(assignments => {
+          const list = document.getElementById('assignmentsList');
+          if (assignments.length === 0) {
+            list.innerHTML = '<div class="muted">No assignments found</div>';
+            return;
+          }
+          
+          list.innerHTML = assignments.map(assignment => `
+            <div class="card">
+              <div class="card-body">
+                <h3>${assignment.staff_name}</h3>
+                <div class="muted">${assignment.role} • ${assignment.skill}</div>
+                <div style="margin-top: 8px;">
+                  <strong>Assigned to:</strong> ${assignment.service_name}
+                </div>
+                <div class="muted">Category: ${assignment.category}</div>
+                <div class="muted">Charges: ${money(assignment.charges)}</div>
+                <div class="muted">Assigned: ${new Date(assignment.assigned_date).toLocaleDateString()}</div>
+                <div class="badge ${assignment.status === 'active' ? 'ok' : 'busy'}">${assignment.status}</div>
+              </div>
+            </div>
+          `).join('');
+        });
+      }
+
+      function renderCustomerServiceHistory() {
+        const app = document.getElementById('app');
+        app.innerHTML = `
+          <section class="section">
+            <h2>My Service History</h2>
+            <p class="lead">View your service interactions and history.</p>
+            <div id="interactionsList" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+              <div class="muted">Loading your service history...</div>
+            </div>
+          </section>
+        `;
+        
+        loadCustomerServiceInteractions().then(interactions => {
+          const list = document.getElementById('interactionsList');
+          if (interactions.length === 0) {
+            list.innerHTML = '<div class="muted">No service interactions found</div>';
+            return;
+          }
+          
+          list.innerHTML = interactions.map(interaction => `
+            <div class="card">
+              <div class="card-body">
+                <h3>${interaction.service_name}</h3>
+                <div class="muted">Category: ${interaction.category}</div>
+                <div class="muted">Charges: ${money(interaction.charges)}</div>
+                <div class="muted">Date: ${new Date(interaction.service_date).toLocaleDateString()}</div>
+                <div class="muted">Status: ${interaction.status}</div>
+                ${interaction.remarks ? `<div style="margin-top: 8px;"><strong>Remarks:</strong> ${interaction.remarks}</div>` : ''}
+              </div>
+            </div>
+          `).join('');
+        });
+      }
+
+      // --- Mount routes
+      Router.mount('/home', renderHome);
+      Router.mount('/rooms', renderRooms);
+      Router.mount('/services', renderServices);
+      Router.mount('/service-booking', renderServiceBooking);
+      Router.mount('/parking-booking', renderParkingBooking);
+      Router.mount('/staff', renderStaff);
+      Router.mount('/booking', renderBooking);
+      Router.mount('/payment', renderPayment);
+      Router.mount('/food', renderFood);
+      Router.mount('/parking', renderParking);
+      Router.mount('/membership', renderMembership);
+      Router.mount('/contact', renderContact);
+
+      // --- Initialize app
+      const initApp = () => {
+        // Check for existing user session
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+          currentUser = JSON.parse(savedUser);
+          updateUserInterface();
+        }
+        
+        // Load data from API
+        loadData();
+        
+        // Set up event listeners
+        document.getElementById('authForm').addEventListener('submit', handleAuth);
+        document.getElementById('toggleAuth').addEventListener('click', toggleAuthMode);
+        
+        // Initialize router
+        Router.start();
+      };
+
+      // --- Init
+      document.getElementById('year').textContent = new Date().getFullYear();
+      initApp();
+    </script>
+  </body>
+</html>

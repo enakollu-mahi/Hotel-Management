@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Secrets & local config
+mysql-config.js
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
+
+# Database dumps (if any)
+*.sql
+hotel_mahi.db
