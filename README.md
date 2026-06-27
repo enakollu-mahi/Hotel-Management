@@ -6,7 +6,7 @@ Hotel booking and management web app — Node.js backend, single-page frontend, 
 
 ```
 hotel-mahidar/
-├── index.html          # Frontend (SPA)
+├── index.html          # Frontend 
 ├── server.js           # API + serves the website
 ├── package.json
 ├── mysql-config.js     # Your local DB config (create from example)
