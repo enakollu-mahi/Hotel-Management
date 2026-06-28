@@ -1,6 +1,6 @@
 # Hotel Mahidar (Hotel Mahi)
 
-Hotel booking and management web app — Node.js backend, single-page frontend, MySQL (optional fallback mode without DB).
+Hotel booking and management web application — Node.js backend, single-page frontend, MySQL (optional fallback mode without DB).
 
 ## Project structure
 
